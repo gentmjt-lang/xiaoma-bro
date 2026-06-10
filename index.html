@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>校边爆款零食推荐</title>
+  <style>
+    :root {
+      --primary: #FF6B35;
+      --primary-light: #FF8C42;
+      --secondary: #F7C948;
+      --bg: #FFF9F5;
+      --card: #FFFFFF;
+      --text: #1A1A1A;
+      --text-sub: #666;
+      --text-muted: #AAA;
+      --border: #FFE0CC;
+      --tag-bg: #FFF3EC;
+      --green: #16A34A;
+      --shadow: 0 2px 10px rgba(255,107,53,0.1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      max-width: 640px;
+      margin: 0 auto;
+      min-height: 100vh;
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      background: linear-gradient(135deg, #FF5A1F 0%, #FF8C42 60%, #FFAD60 100%);
+      color: #fff;
+      padding: 20px 16px 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    .header-deco {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      font-size: 52px;
+      opacity: 0.18;
+      transform: rotate(12deg);
+      line-height: 1;
+    }
+    .header-label {
+      display: inline-block;
+      background: rgba(255,255,255,0.25);
+      border: 1px solid rgba(255,255,255,0.4);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+    .header h1 { font-size: 22px; font-weight: 800; margin-bottom: 6px; letter-spacing: 0.3px; }
+    .header p { font-size: 12px; opacity: 0.9; line-height: 1.6; max-width: 260px; }
+
+    /* ===== STATS ===== */
+    .stats {
+      display: flex;
+      background: var(--primary);
+      color: #fff;
+    }
+    .stat { flex: 1; text-align: center; padding: 10px 4px; }
+    .stat-n { font-size: 20px; font-weight: 800; line-height: 1; }
+    .stat-l { font-size: 10px; opacity: 0.85; margin-top: 2px; }
+
+    /* ===== SEARCH ===== */
+    .sticky-top {
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+    }
+    .search-box {
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .search-box input {
+      flex: 1;
+      padding: 9px 14px 9px 36px;
+      border: 1.5px solid var(--border);
+      border-radius: 24px;
+      font-size: 14px;
+      background: var(--bg);
+      outline: none;
+      color: var(--text);
+      transition: border-color 0.2s;
+    }
+    .search-box input:focus { border-color: var(--primary); }
+    .search-wrap { position: relative; flex: 1; }
+    .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 15px; pointer-events: none; }
+    .clear-btn {
+      display: none;
+      background: var(--border);
+      border: none;
+      border-radius: 50%;
+      width: 22px; height: 22px;
+      font-size: 12px;
+      cursor: pointer;
+      color: var(--text-sub);
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      align-items: center;
+      justify-content: center;
+    }
+    .clear-btn.visible { display: flex; }
+
+    /* ===== TABS ===== */
+    .tabs {
+      display: flex;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding: 0 8px;
+      background: #fff;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab {
+      flex-shrink: 0;
+      padding: 10px 14px;
+      border: none;
+      background: none;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-sub);
+      cursor: pointer;
+      border-bottom: 2.5px solid transparent;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 700; }
+    .tab .cnt {
+      display: inline-block;
+      background: var(--border);
+      color: var(--text-sub);
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 8px;
+      margin-left: 3px;
+      font-weight: 600;
+    }
+    .tab.active .cnt { background: var(--primary); color: #fff; }
+
+    /* ===== SECTIONS ===== */
+    .section { display: none; padding: 12px 14px 80px; }
+    .section.active { display: block; }
+
+    /* ===== DETAIL CARD (S1–S3) ===== */
+    .d-card {
+      background: var(--card);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      padding: 14px;
+      margin-bottom: 10px;
+      box-shadow: var(--shadow);
+    }
+    .d-card:active { transform: scale(0.99); transition: transform 0.1s; }
+    .d-top { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 10px; }
+    .d-num {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 10px;
+      flex-shrink: 0;
+      min-width: 30px;
+      text-align: center;
+      margin-top: 2px;
+    }
+    .d-name { font-size: 15px; font-weight: 700; line-height: 1.4; flex: 1; }
+    .price-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .p-cell {
+      background: var(--tag-bg);
+      border-radius: 9px;
+      padding: 7px 4px;
+      text-align: center;
+    }
+    .p-label { font-size: 10px; color: var(--text-muted); margin-bottom: 3px; }
+    .p-val { font-size: 13px; font-weight: 700; color: var(--text); }
+    .p-val.cost { color: var(--primary); }
+    .p-val.sell { color: #2563EB; }
+    .p-val.profit { color: var(--green); }
+    .d-note {
+      font-size: 12px;
+      color: var(--text-sub);
+      line-height: 1.5;
+      background: #F8F6F0;
+      border-left: 3px solid var(--secondary);
+      padding: 6px 10px;
+      border-radius: 0 6px 6px 0;
+      margin-bottom: 10px;
+    }
+    .d-actions { display: flex; gap: 8px; }
+    .btn-pdd {
+      flex: 1;
+      display: block;
+      text-align: center;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 9px 10px;
+      border-radius: 9px;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-copy {
+      padding: 9px 14px;
+      background: var(--tag-bg);
+      color: var(--primary);
+      border: 1.5px solid var(--border);
+      border-radius: 9px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn-search-pdd {
+      display: block;
+      text-align: center;
+      background: #F5F5F0;
+      color: var(--text-sub);
+      font-size: 12px;
+      padding: 8px 10px;
+      border-radius: 9px;
+      text-decoration: none;
+      cursor: pointer;
+      border: 1.5px dashed var(--border);
+      width: 100%;
+    }
+
+    /* ===== SIMPLE CARD (S4–S5) ===== */
+    .s-card {
+      background: var(--card);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: var(--shadow);
+    }
+    .s-num {
+      background: var(--tag-bg);
+      color: var(--primary);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+    .s-name { font-size: 14px; font-weight: 500; flex: 1; line-height: 1.4; color: var(--text); }
+    .s-link {
+      color: var(--primary);
+      font-size: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      white-space: nowrap;
+      background: var(--tag-bg);
+      padding: 5px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .s-link:active { background: var(--primary); color: #fff; }
+    .s-note-small { font-size: 11px; color: var(--text-muted); line-height: 1.3; }
+
+    /* ===== BRAND SECTION (S6) ===== */
+    .brand-block { margin-bottom: 18px; }
+    .brand-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--primary);
+      padding: 8px 12px;
+      background: linear-gradient(90deg, rgba(255,107,53,0.08), transparent);
+      border-left: 4px solid var(--primary);
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 10px;
+    }
+    .tag-list { display: flex; flex-wrap: wrap; gap: 7px; }
+    .tag {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 6px 13px;
+      font-size: 13px;
+      color: var(--text);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .tag-note { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+    /* ===== SEARCH RESULTS ===== */
+    #search-section { display: none; padding: 12px 14px 80px; }
+    .result-count { font-size: 12px; color: var(--text-sub); margin-bottom: 10px; padding: 2px 0; }
+    .result-badge {
+      display: inline-block;
+      background: var(--tag-bg);
+      color: var(--primary);
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 8px;
+      margin-left: 6px;
+      font-weight: 600;
+    }
+    mark { background: rgba(255,107,53,0.18); border-radius: 2px; color: inherit; }
+
+    /* ===== EMPTY STATE ===== */
+    .empty { text-align: center; padding: 48px 20px; color: var(--text-muted); }
+    .empty-emoji { font-size: 44px; margin-bottom: 12px; }
+    .empty p { font-size: 14px; }
+
+    /* ===== TOAST ===== */
+    #toast {
+      position: fixed;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%) translateY(16px);
+      background: rgba(20,20,20,0.82);
+      color: #fff;
+      padding: 9px 22px;
+      border-radius: 22px;
+      font-size: 13px;
+      opacity: 0;
+      transition: opacity 0.25s, transform 0.25s;
+      z-index: 999;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ===== SECTION SUBTITLE ===== */
+    .section-tip {
+      font-size: 12px;
+      color: var(--text-sub);
+      background: #FFF8F0;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+    .section-tip strong { color: var(--primary); }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-deco">🍭🍿🍬</div>
+  <div class="header-label">厂家自营 · 70+30 推荐</div>
+  <h1>校边爆款零食推荐</h1>
+  <p>量少拼多多，量大对接厂家<br>量少邮费成本高，按需选择</p>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-n">100+</div><div class="stat-l">款爆品</div></div>
+  <div class="stat"><div class="stat-n">6</div><div class="stat-l">分类批次</div></div>
+  <div class="stat"><div class="stat-n">3+</div><div class="stat-l">合作品牌</div></div>
+</div>
+
+<div class="sticky-top">
+  <div class="search-box">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="搜索零食名称…" autocomplete="off">
+      <button class="clear-btn" id="clearBtn">✕</button>
+    </div>
+  </div>
+  <div class="tabs" id="tabBar">
+    <button class="tab active" data-tab="s1">第一批 <span class="cnt">10</span></button>
+    <button class="tab" data-tab="s2">第二批 <span class="cnt">10</span></button>
+    <button class="tab" data-tab="s3">第三批 <span class="cnt">10</span></button>
+    <button class="tab" data-tab="s4">第四批 <span class="cnt">20</span></button>
+    <button class="tab" data-tab="s5">第五批 <span class="cnt">20</span></button>
+    <button class="tab" data-tab="s6">厂家源头 <span class="cnt">31</span></button>
+  </div>
+</div>
+
+<!-- ===== SEARCH RESULTS ===== -->
+<div id="search-section">
+  <div class="result-count" id="resultCount"></div>
+  <div id="searchResults"></div>
+</div>
+
+<!-- ===== S1 ===== -->
+<div class="section active" id="s1">
+  <div class="section-tip">⚠️ <strong>注意散装和定装克数</strong>，下单前确认规格</div>
+</div>
+
+<!-- ===== S2 ===== -->
+<div class="section" id="s2">
+  <div class="section-tip">🛒 均为拼多多货源，建议对比当地批发价</div>
+</div>
+
+<!-- ===== S3 ===== -->
+<div class="section" id="s3">
+  <div class="section-tip">💡 部分为散称商品，无固定克数，酌情考虑</div>
+</div>
+
+<!-- ===== S4 ===== -->
+<div class="section" id="s4">
+  <div class="section-tip">⚠️ <strong>采购时甄别散装和定量装克数</strong></div>
+</div>
+
+<!-- ===== S5 ===== -->
+<div class="section" id="s5">
+  <div class="section-tip">⚠️ <strong>采购时甄别散装和定量装克数</strong></div>
+</div>
+
+<!-- ===== S6 ===== -->
+<div class="section" id="s6">
+  <div class="section-tip">🏭 <strong>厂家源头 / 一批代理商 / 自营类</strong>，可直接联系合作</div>
+</div>
+
+<div id="toast">已复制链接 ✓</div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const s1 = [
+  { name:"名厨泡翅两种口味混合各半", url:"https://mobile.yangkeduo.com/goods.html?ps=Kdc6V7f8ae", boxPrice:38.8, qty:60, unitCost:0.64, sellPrice:1, note:"" },
+  { name:"上行斋生巧福团", url:"https://mobile.yangkeduo.com/goods1.html?ps=JVrMaEnktX", boxPrice:33.69, qty:34, unitCost:0.99, sellPrice:2, note:"" },
+  { name:"醇芙脆角（推荐巧克力味）", url:"https://mobile.yangkeduo.com/goods.html?ps=vO2ULVVLWi", boxPrice:79.79, qty:120, unitCost:0.63, sellPrice:2, note:"" },
+  { name:"挑吃兔脆笋", url:"https://mobile.yangkeduo.com/goods2.html?ps=9raUlSXwhC", boxPrice:25.01, qty:40, unitCost:0.625, sellPrice:1, note:"" },
+  { name:"挑吃兔土豆（推荐烧烤味）", url:"https://mobile.yangkeduo.com/goods1.html?ps=V8H08xOJgu", boxPrice:24.2, qty:40, unitCost:0.605, sellPrice:1, note:"挑吃兔的系列都挺好吃" },
+  { name:"慈周小镇（糖醋排骨系列）", url:"https://mobile.yangkeduo.com/goods.html?ps=nGcYZCzLPx", boxPrice:26.48, qty:40, unitCost:0.662, sellPrice:1, note:"" },
+  { name:"光头娃一棵葱 / 30克", url:"https://mobile.yangkeduo.com/goods1.html?ps=15YvAbyOOu", boxPrice:25.9, qty:40, unitCost:0.64, sellPrice:1, note:"" },
+  { name:"云南米线辣条（30克装）", url:"https://mobile.yangkeduo.com/goods1.html?ps=pESYI2OS1X", boxPrice:24.66, qty:40, unitCost:0.61, sellPrice:1, note:"这个价格各规格基本差不多" },
+  { name:"素大黄鱼（辣条类，40克）", url:"https://mobile.yangkeduo.com/goods1.html?ps=ZGfNtgbowg", boxPrice:75, qty:120, unitCost:0.625, sellPrice:1, note:"有5毛一包的，5毛不好卖" },
+  { name:"万士利饼干（50片25包规格）", url:"https://mobile.yangkeduo.com/goods.html?ps=yN2NAPKeZc", boxPrice:14.8, qty:25, unitCost:0.592, sellPrice:1, note:"无具体克数" },
+];
+
+const s2 = [
+  { name:"格力奇可可慕斯（只推荐巧克力味）", url:"https://mobile.yangkeduo.com/goods.html?ps=sYztgLmvLx", boxPrice:39.9, qty:60, unitCost:0.665, sellPrice:1, note:"" },
+  { name:"乐潮混合味糖果，每种都不错", url:"https://mobile.yangkeduo.com/goods1.html?ps=QdA3T3UTNI", boxPrice:37.6, qty:60, unitCost:0.626, sellPrice:1, note:"" },
+  { name:"笑咪咪天天嚼（软糖，混装口味全部好卖）", url:"https://mobile.yangkeduo.com/goods1.html?ps=Z5oWex6q6a", boxPrice:34.8, qty:48, unitCost:0.725, sellPrice:1, note:"" },
+  { name:"汉佳粑粑糖（两种口味都好卖）", url:"https://mobile.yangkeduo.com/goods2.html?ps=jNx9hYZzmy", boxPrice:26.7, qty:40, unitCost:0.667, sellPrice:1, note:"" },
+  { name:"金冠巧享脆，两种口味（白鹿代言大爆品）", url:"https://mobile.yangkeduo.com/goods.html?ps=i4o5mpE1vJ", boxPrice:14.2, qty:20, unitCost:0.71, sellPrice:1, note:"" },
+  { name:"迈乐堡熔颜慕斯（混合装）", url:"https://mobile.yangkeduo.com/goods1.html?ps=V0Gk6RqtHF", boxPrice:169.9, qty:240, unitCost:0.708, sellPrice:1, note:"168.8/240盒另有草莓单味款；低于此规格单包≥0.8元" },
+  { name:"心食代麻酱素牛筋 36g", url:"https://mobile.yangkeduo.com/goods.html?ps=MsOMtZsbAN", boxPrice:37.8, qty:60, unitCost:0.63, sellPrice:1, note:"" },
+  { name:"科切拉蜜汁烧鸟（多种口味）", url:"https://mobile.yangkeduo.com/goods2.html?ps=17zZc5LXz8", boxPrice:31.8, qty:60, unitCost:0.53, sellPrice:1, note:"" },
+  { name:"佳宝酱芒果 15克", url:"https://mobile.yangkeduo.com/goods.html?ps=gkagTlTdX6", boxPrice:20.2, qty:24, unitCost:0.84, sellPrice:1.5, note:"价格偏高，但确实好卖，可卖1元或1.5元" },
+  { name:"金芙脆巧", url:"https://mobile.yangkeduo.com/goods.html?ps=GLmWsRGIHD", boxPrice:38.52, qty:60, unitCost:0.642, sellPrice:1, note:"" },
+];
+
+const s3 = [
+  { name:"遇见花时蒟蒻果冻 160克（各种口味）", url:"https://mobile.yangkeduo.com/goods.html?ps=GHlHNjuQDW", boxPrice:17.5, qty:15, unitCost:1.173, sellPrice:2, note:"" },
+  { name:"雪地冻干棉花糖", url:"https://mobile.yangkeduo.com/goods.html?ps=T17Dlkodwr", boxPrice:51.1, qty:80, unitCost:0.638, sellPrice:1, note:"" },
+  { name:"干噎酸奶（散称）", url:"https://mobile.yangkeduo.com/goods1.html?ps=XvuSyPkJVQ", boxPrice:37.9, qty:100, unitCost:0.379, sellPrice:null, note:"散称，无具体克数，酌情考虑定价" },
+  { name:"宏源全系列糖果（24克每包）", url:"https://mobile.yangkeduo.com/goods1.html?ps=OSJL9WRgxW", boxPrice:69.78, qty:100, unitCost:0.697, sellPrice:1, note:"" },
+  { name:"余同乐北京烤鸭（散称）", url:"https://mobile.yangkeduo.com/goods1.html?ps=4AFg7Slif9", boxPrice:29.4, qty:100, unitCost:0.294, sellPrice:0.5, note:"散称，当地批发如有克重款可优先选，口味非常好" },
+  { name:"多奇王子（小烤肠七根装）", url:"https://mobile.yangkeduo.com/goods1.html?ps=ztUAvrTTRg", boxPrice:156, qty:240, unitCost:0.65, sellPrice:1, note:"分量超大，很好吃，全网最低且包邮" },
+  { name:"冰糖葫芦", url:"https://mobile.yangkeduo.com/goods1.html?ps=HQeYACCw5K", boxPrice:50.1, qty:40, unitCost:1.252, sellPrice:2, note:"" },
+  { name:"唐僧素牛排（辣条类，散称）", url:null, boxPrice:null, qty:null, unitCost:null, sellPrice:null, note:"拼多多自行搜索，散称无固定价，当地批发有克重款可进货" },
+  { name:"常记干脆面", url:"https://mobile.yangkeduo.com/goods.html?ps=agdxQ8MIwc", boxPrice:17.74, qty:24, unitCost:0.739, sellPrice:1, note:"" },
+  { name:"绿爽辣条", url:"https://mobile.yangkeduo.com/goods.html?ps=njTByOZoYy", boxPrice:28.89, qty:100, unitCost:0.289, sellPrice:0.5, note:"" },
+];
+
+const s4 = [
+  { name:"同耀女巫的游戏糖果（有一代二代三代，价格不等）", url:"https://mobile.yangkeduo.com/goods2.html?ps=UlCKOkZsXl" },
+  { name:"达结佬面筋休闲大礼包辣片网红辣条", url:"https://mobile.yangkeduo.com/goods1.html?ps=VG9YxHDfGU" },
+  { name:"霸王丝湖南变态麻辣条 18克装", url:"https://mobile.yangkeduo.com/goods2.html?ps=3rICewlScX" },
+  { name:"翻天娃泰式柠檬草辣条 58克", url:"https://mobile.yangkeduo.com/goods2.html?ps=6uuHHpYXHl" },
+  { name:"笋小样 32克山椒脆笋小包装", url:"https://mobile.yangkeduo.com/goods2.html?ps=9cW3fM6Kkg" },
+  { name:"正乐盐值派海盐含片无糖薄荷糖", url:"https://mobile.yangkeduo.com/goods1.html?ps=HINz3asosm" },
+  { name:"恬该糖酸倒你富田老牌子大包 26g", url:"https://mobile.yangkeduo.com/goods2.html?ps=7iy0rgh8O7" },
+  { name:"酸妞软糖浓郁版水果味糖果", url:"https://mobile.yangkeduo.com/goods1.html?ps=TjAXkbtRx7" },
+  { name:"童康园拉丝糖", url:"https://mobile.yangkeduo.com/goods2.html?ps=fU3L3F8pTK" },
+  { name:"绿白奶片抹茶奶片", url:"https://mobile.yangkeduo.com/goods1.html?ps=0h4xymywvQ" },
+  { name:"超级心果酱夹心口香糖《整合端盒》", url:"https://mobile.yangkeduo.com/goods2.html?ps=JhTxTt7S2Z" },
+  { name:"曲奇坚果果脆巧克力独立小包装", url:"https://mobile.yangkeduo.com/goods.html?ps=x8MRYhHl5k" },
+  { name:"硕果口嚼糖水果味瑞士糖", url:"https://mobile.yangkeduo.com/goods1.html?ps=CmMK7gs5cH" },
+  { name:"正大无花果独立小包装", url:"https://mobile.yangkeduo.com/goods1.html?ps=xFb8xbQlSA" },
+  { name:"网红小石头巧克力酸奶", url:"https://mobile.yangkeduo.com/goods.html?ps=f2MKOG33SJ" },
+  { name:"啃不佬素鲍鱼 23g 香辣零食", url:"https://mobile.yangkeduo.com/goods2.html?ps=2WP4InLjy9" },
+  { name:"哆妹妹冷吃螺蛳粉", url:"https://mobile.yangkeduo.com/goods1.html?ps=PnJz1B3cIr" },
+  { name:"诚卡金钱爆魔芋 20g", url:"https://mobile.yangkeduo.com/goods2.html?ps=2Fabr7J7t6" },
+  { name:"胡婆婆麻酱魔芋爆肚", url:"https://mobile.yangkeduo.com/goods.html?ps=4esT6CPbAu" },
+  { name:"捍味麻酱米辣爆肚脆", url:"https://mobile.yangkeduo.com/goods1.html?ps=CE6rzsWTpq" },
+];
+
+const s5 = [
+  { name:"世代双雄爆汁烤翅爆辣鸭翅", url:"https://mobile.yangkeduo.com/goods2.html?ps=ijjJTbopRY" },
+  { name:"啃肯爽醋泡脆骨脆软骨", url:"https://mobile.yangkeduo.com/goods2.html?ps=wfhrq4OYQk" },
+  { name:"鑫嘉宝去骨鸡爪筋 16g 柠檬泡椒味凤爪", url:"https://mobile.yangkeduo.com/goods.html?ps=CI3EWZorwF" },
+  { name:"缺牙齿素牛肚湖南特产魔芋爽", url:"https://mobile.yangkeduo.com/goods1.html?ps=EBDP66eIAg" },
+  { name:"益曼思劲浓球果汁硬糖果（这个牌子的糖都可以）", url:"https://mobile.yangkeduo.com/goods2.html?ps=E6XAidnwaI" },
+  { name:"好邻居新款网红糖", url:"https://mobile.yangkeduo.com/goods1.html?ps=gl13j9QJEl" },
+  { name:"新款河马同学冻干糖果", url:"https://mobile.yangkeduo.com/goods.html?ps=Bi9b2PCVU5" },
+  { name:"韩上园冰梅棒", url:"https://mobile.yangkeduo.com/goods1.html?ps=Di35YDjDYm" },
+  { name:"阿佬俵 16g 云南小粒咖啡", url:"https://mobile.yangkeduo.com/goods.html?ps=EbpJK6YPdb" },
+  { name:"奶茶粉小包装冲泡生椰拿铁咖啡（学生款）", url:"https://mobile.yangkeduo.com/goods.html?ps=5KC4onWwSP" },
+  { name:"哆哆妹冷吃加辣加臭螺蛳粉", url:"https://mobile.yangkeduo.com/goods2.html?ps=qaFnpvDvOl" },
+  { name:"富田冰红茶 26g 柠檬红茶味糖（两种口味都可以）", url:"https://mobile.yangkeduo.com/goods1.html?ps=24EwZZ3cI8" },
+  { name:"双仔牛筋传说辣条 32克", url:"https://mobile.yangkeduo.com/goods2.html?ps=GHKRRmxULW" },
+  { name:"酥脆脆桃童年怀旧零食水蜜桃", url:"https://mobile.yangkeduo.com/goods1.html?ps=CLxllVK0nC" },
+  { name:"笑辣辣印度飞饼辣条 30克", url:"https://mobile.yangkeduo.com/goods2.html?ps=XeFcM3LHpN" },
+  { name:"创意作业糯米纸（可食用）", url:"https://mobile.yangkeduo.com/goods2.html?ps=9UGGO6uu1Z" },
+  { name:"碱水面包丁 28克", url:"https://mobile.yangkeduo.com/goods.html?ps=Rl2dQJZ6IN" },
+  { name:"宏源仔仔棒棒糖混合水果味（1元多个）", url:"https://mobile.yangkeduo.com/goods2.html?ps=pLJyPRqZut" },
+  { name:"维巧爱纯可可脂爆款曲奇（一元一个）", url:"https://mobile.yangkeduo.com/goods2.html?ps=O5L69vkLVp" },
+  { name:"宏泰记酿梅子 28克", url:"https://mobile.yangkeduo.com/goods2.html?ps=T22F3HAqAs" },
+];
+
+const s6 = [
+  {
+    brand: "豆多奇 · 豆制品",
+    items: [
+      "鹌鹑蛋豆干（三种味道）","板栗豆干（2种味道）","麻酱面筋（两种味道）",
+      "铁板素里脊肉（两种味道）","鹌鹑蛋三颗装（2种口味）","7个肉蛋蛋（三种口味）",
+      "地道肠（2种口味）","金钱素爆肚（两种口味）","小面筋香辣味辣条","香辣海带"
+    ]
+  },
+  {
+    brand: "味溢家 · 膨化食品",
+    items: [
+      "黑胡椒牛排味薯片","犹豫波浪片","厚切波浪片","双层大波浪片",
+      "小芳同学脆片","小明同学素食类","鹌鹑蛋素肉","板栗素肉",
+      "逗蔬爽土豆片","逗蔬爽海带片","逗蔬爽杏鲍菇","逗蔬爽金针菇",
+      "逗蔬爽海带丝","逗蔬爽藕片","季季乐脆骨肠（9.9元/40包80粒）",
+      "花椒锅巴（抖音爆款）"
+    ]
+  },
+  {
+    brand: "旺鹭 · 奶类制品",
+    items: [
+      "金桂乌龙乳茶牛奶","茉莉雪芽乳茶牛奶","玫瑰荔枝牛奶","草莓牛奶","哈密瓜牛奶"
+    ]
+  }
+];
+
+// ============================================================
+// RENDER HELPERS
+// ============================================================
+function fmt(n) { return n != null ? n.toFixed(2) : '—'; }
+
+function profitColor(p) {
+  if (p == null) return '';
+  return p >= 0.4 ? 'profit' : (p >= 0.2 ? 'sell' : 'cost');
+}
+
+function renderDetailCard(item, idx) {
+  const profit = (item.sellPrice != null && item.unitCost != null)
+    ? (item.sellPrice - item.unitCost).toFixed(2) : null;
+  const profitCls = profit != null ? profitColor(parseFloat(profit)) : '';
+
+  const actionHtml = item.url
+    ? `<a class="btn-pdd" href="${item.url}" target="_blank">🛒 去拼多多</a>
+       <button class="btn-copy" onclick="copyLink('${item.url}', this)">复制</button>`
+    : `<span class="btn-search-pdd">🔎 拼多多自行搜索</span>`;
+
+  const priceHtml = (item.boxPrice != null)
+    ? `<div class="price-grid">
+        <div class="p-cell"><div class="p-label">进货价</div><div class="p-val cost">¥${fmt(item.boxPrice)}</div></div>
+        <div class="p-cell"><div class="p-label">数量</div><div class="p-val">${item.qty}包</div></div>
+        <div class="p-cell"><div class="p-label">单包成本</div><div class="p-val cost">¥${fmt(item.unitCost)}</div></div>
+        <div class="p-cell"><div class="p-label">建议售价</div><div class="p-val ${profit != null ? 'sell' : ''}">
+          ${item.sellPrice != null ? '¥'+item.sellPrice : '待定'}</div></div>
+      </div>
+      ${profit != null ? `<div class="price-grid" style="grid-template-columns:1fr 1fr;margin-bottom:10px">
+        <div class="p-cell"><div class="p-label">每包利润</div><div class="p-val ${profitCls}">+¥${profit}</div></div>
+        <div class="p-cell"><div class="p-label">利润率</div><div class="p-val ${profitCls}">${Math.round(parseFloat(profit)/item.sellPrice*100)}%</div></div>
+      </div>` : ''}` : '';
+
+  return `<div class="d-card" data-name="${item.name}">
+    <div class="d-top">
+      <span class="d-num">No.${idx+1}</span>
+      <span class="d-name">${item.name}</span>
+    </div>
+    ${priceHtml}
+    ${item.note ? `<div class="d-note">💬 ${item.note}</div>` : ''}
+    <div class="d-actions">${actionHtml}</div>
+  </div>`;
+}
+
+function renderSimpleCard(item, idx) {
+  const linkHtml = item.url
+    ? `<a class="s-link" href="${item.url}" target="_blank">去购买</a>`
+    : `<span style="font-size:11px;color:#bbb">自行搜索</span>`;
+  return `<div class="s-card" data-name="${item.name}">
+    <span class="s-num">${idx+1}</span>
+    <span class="s-name">${item.name}</span>
+    ${linkHtml}
+  </div>`;
+}
+
+function renderBrandBlock(brand) {
+  const tags = brand.items.map(i => `<span class="tag">${i}</span>`).join('');
+  return `<div class="brand-block">
+    <div class="brand-title">🏷️ ${brand.brand}</div>
+    <div class="tag-list">${tags}</div>
+  </div>`;
+}
+
+// ============================================================
+// INIT SECTIONS
+// ============================================================
+function initSections() {
+  document.getElementById('s1').insertAdjacentHTML('beforeend',
+    s1.map((it, i) => renderDetailCard(it, i)).join(''));
+  document.getElementById('s2').insertAdjacentHTML('beforeend',
+    s2.map((it, i) => renderDetailCard(it, i)).join(''));
+  document.getElementById('s3').insertAdjacentHTML('beforeend',
+    s3.map((it, i) => renderDetailCard(it, i)).join(''));
+  document.getElementById('s4').insertAdjacentHTML('beforeend',
+    s4.map((it, i) => renderSimpleCard(it, i)).join(''));
+  document.getElementById('s5').insertAdjacentHTML('beforeend',
+    s5.map((it, i) => renderSimpleCard(it, i)).join(''));
+  document.getElementById('s6').insertAdjacentHTML('beforeend',
+    s6.map(b => renderBrandBlock(b)).join(''));
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function initTabs() {
+  document.querySelectorAll('.tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (document.getElementById('searchInput').value.trim()) return;
+      document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+  });
+}
+
+// ============================================================
+// SEARCH
+// ============================================================
+const allItems = [
+  ...s1.map((it, i) => ({ ...it, section: '第一批', sId: 1, idx: i })),
+  ...s2.map((it, i) => ({ ...it, section: '第二批', sId: 2, idx: i })),
+  ...s3.map((it, i) => ({ ...it, section: '第三批', sId: 3, idx: i })),
+  ...s4.map((it, i) => ({ ...it, section: '第四批', sId: 4, idx: i })),
+  ...s5.map((it, i) => ({ ...it, section: '第五批', sId: 5, idx: i })),
+  ...s6.flatMap(b => b.items.map(name => ({ name, url: null, section: '厂家源头', sId: 6, brand: b.brand, idx: 0 }))),
+];
+
+function highlight(text, kw) {
+  if (!kw) return text;
+  const re = new RegExp('(' + kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+  return text.replace(re, '<mark>$1</mark>');
+}
+
+function renderSearchResult(item, kw) {
+  const name = highlight(item.name, kw);
+  const badge = `<span class="result-badge">${item.section}</span>`;
+  if (item.sId <= 3) {
+    const profit = (item.sellPrice != null && item.unitCost != null)
+      ? '+¥' + (item.sellPrice - item.unitCost).toFixed(2) : '';
+    const priceRow = item.boxPrice
+      ? `<div style="font-size:12px;color:var(--text-sub);margin:6px 0">
+          ¥${fmt(item.boxPrice)} / ${item.qty}包 · 成本 ¥${fmt(item.unitCost)} · 售 ¥${item.sellPrice||'?'}
+          ${profit ? `<span style="color:var(--green);font-weight:700;margin-left:6px">${profit}</span>` : ''}
+        </div>` : '';
+    const link = item.url
+      ? `<a class="btn-pdd" href="${item.url}" target="_blank" style="font-size:12px;padding:6px 10px">🛒 去购买</a>`
+      : `<span style="color:#bbb;font-size:12px">拼多多自行搜索</span>`;
+    return `<div class="d-card">
+      <div class="d-top"><span class="d-name">${name}</span>${badge}</div>
+      ${priceRow}
+      <div class="d-actions">${link}</div>
+    </div>`;
+  } else if (item.sId <= 5) {
+    const link = item.url
+      ? `<a class="s-link" href="${item.url}" target="_blank">去购买</a>`
+      : '';
+    return `<div class="s-card">
+      <span class="s-name">${name} ${badge}</span>${link}
+    </div>`;
+  } else {
+    return `<div class="s-card">
+      <span class="s-name">${name} ${badge}</span>
+      <span style="font-size:11px;color:var(--text-muted)">${item.brand||''}</span>
+    </div>`;
+  }
+}
+
+function doSearch(kw) {
+  const ssec = document.getElementById('search-section');
+  const tabs = document.querySelectorAll('.section');
+  const tabBtns = document.querySelectorAll('.tab');
+  if (!kw) {
+    ssec.style.display = 'none';
+    const activeTab = document.querySelector('.tab.active');
+    const activeId = activeTab ? activeTab.dataset.tab : 's1';
+    tabs.forEach(s => s.classList.remove('active'));
+    document.getElementById(activeId).classList.add('active');
+    return;
+  }
+  tabs.forEach(s => s.classList.remove('active'));
+  ssec.style.display = 'block';
+  const results = allItems.filter(it => it.name.includes(kw));
+  document.getElementById('resultCount').innerHTML =
+    `找到 <strong>${results.length}</strong> 个结果，关键词：<strong>${kw}</strong>`;
+  document.getElementById('searchResults').innerHTML = results.length
+    ? results.map(it => renderSearchResult(it, kw)).join('')
+    : `<div class="empty"><div class="empty-emoji">🤷</div><p>没有找到"${kw}"相关零食</p></div>`;
+}
+
+function initSearch() {
+  const input = document.getElementById('searchInput');
+  const clear = document.getElementById('clearBtn');
+  let timer;
+  input.addEventListener('input', () => {
+    clearTimeout(timer);
+    const kw = input.value.trim();
+    clear.classList.toggle('visible', kw.length > 0);
+    timer = setTimeout(() => doSearch(kw), 300);
+  });
+  clear.addEventListener('click', () => {
+    input.value = '';
+    clear.classList.remove('visible');
+    doSearch('');
+  });
+}
+
+// ============================================================
+// COPY LINK
+// ============================================================
+function copyLink(url, btn) {
+  navigator.clipboard.writeText(url).then(() => {
+    showToast('链接已复制 ✓');
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = url;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('链接已复制 ✓');
+  });
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ============================================================
+// BOOT
+// ============================================================
+initSections();
+initTabs();
+initSearch();
+</script>
+</body>
+</html>
